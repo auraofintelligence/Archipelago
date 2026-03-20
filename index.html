@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archipelago Intelligence & Narrative Index</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Chosen Palette: Warm Sand & Mangrove Estuary. A calming, neutral background (stone/sand) with deep teal and terracotta accents to represent the land and water interface of the islands. -->
+    
+    <!-- Application Structure Plan: 
+         The SPA acts as a "Living Index" and "Wait Station". 
+         1. Header: Status indicator showing readiness for new documents.
+         2. Narrative Hero: Sets the tone, emphasizing humans as storytelling beings across the expanded geography (Bribie, Moolgumpin, Minjerribah, SMBIs).
+         3. Interactive Archipelago Filter: Allows users to shift the geographical focus, dynamically updating the narrative and data.
+         4. Ecosystem Dashboard: High-level visualizations (Chart.js) of the current knowledge base.
+         5. Thematic Document Index: A filterable, interactive grid of all 19 ingested documents, categorized by function (Governance, Economy, Tech, Narrative).
+         This structure provides immediate synthesis of the complex source material while explicitly maintaining an open stance for future inputs.
+    -->
+    
+    <!-- Visualization & Content Choices: 
+         - Goal: Inform on system balance -> Viz: Doughnut Chart -> Interaction: Hover for document counts -> Library: Chart.js (NO SVG). Justification: Quickly shows if the system is leaning too heavily into tech vs. narrative.
+         - Goal: Compare geographical readiness -> Viz: Radar Chart -> Interaction: Updates based on selected island -> Library: Chart.js. Justification: Shows how the protocols (like C-Hour or Kiosks) adapt to different island scales.
+         - Goal: Organize documents -> Viz: Interactive Grid -> Interaction: Click to expand summary -> Library: HTML/CSS/JS. Justification: Replaces a dense list with an explorable knowledge graph.
+    -->
+    
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. All visual elements are CSS, Unicode, or Canvas-based. -->
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap');
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #FAFAF9; /* stone-50 */
+            color: #292524; /* stone-800 */
+        }
+
+        h1, h2, h3, .serif-font {
+            font-family: 'Lora', serif;
+        }
+
+        /* Mandatory Chart Container Constraints */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px; /* Prevents infinite scaling */
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px; /* Base height */
+            max-height: 350px;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        /* Custom Scrollbar for neatness */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #E7E5E4; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #A8A29E; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #78716C; 
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+
+    <!-- Top Navigation / Wait Station Status -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-stone-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-full bg-teal-800 text-white flex items-center justify-center font-bold font-serif shadow-inner">
+                    A
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-stone-900 leading-tight">Archipelago Intelligence</h1>
+                    <p class="text-xs text-stone-500 uppercase tracking-widest font-semibold">Strategic Index & Wait Station</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="hidden md:flex items-center space-x-2 text-sm bg-amber-100 text-amber-800 px-3 py-1 rounded-full font-medium border border-amber-200">
+                    <span class="relative flex h-3 w-3">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+                    </span>
+                    <span>System Active: Awaiting Additional Documents</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+        <!-- Left Column: Narrative & Geography (4 cols) -->
+        <aside class="lg:col-span-4 space-y-6">
+            
+            <!-- Narrative Engine Intro -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-stone-200">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-2xl font-bold text-teal-900">The Narrative Engine</h2>
+                    <span class="text-2xl">📖</span>
+                </div>
+                <p class="text-stone-600 mb-4 leading-relaxed">
+                    Humans are beings of story. To transition governance, economy, and technology, we must first weave <strong>inclusive narratives</strong>. 
+                    This system expands the Minjerribah Protocol to encompass the entire regional island network, ensuring no community is left out of the Protopian timeline.
+                </p>
+                
+                <div class="bg-stone-50 rounded-xl p-4 border border-stone-100 mb-4">
+                    <h3 class="text-sm font-bold text-stone-500 uppercase tracking-wider mb-2">Current Geographical Focus</h3>
+                    <div class="grid grid-cols-2 gap-2" id="geo-filters">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+                
+                <div id="dynamic-narrative-box" class="italic text-teal-800 border-l-4 border-teal-500 pl-4 py-2 fade-in">
+                    <!-- Dynamic text based on selection -->
+                    "Select an island region above to see how the intelligence and media ecosystem protocols adapt to its unique landscape."
+                </div>
+            </div>
+
+            <!-- Dashboard Analytics -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-stone-200">
+                <h3 class="text-lg font-bold text-stone-800 mb-4">System Integration Balance</h3>
+                <p class="text-sm text-stone-500 mb-4">Distribution of current 19 documents across core pillars. A healthy ecosystem requires balance across all four quadrants.</p>
+                <div class="chart-container">
+                    <canvas id="balanceChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Awaiting Input Module -->
+            <div class="bg-teal-900 rounded-2xl p-6 shadow-lg text-white relative overflow-hidden">
+                <div class="absolute -right-4 -top-4 opacity-10 text-6xl">📡</div>
+                <h3 class="text-lg font-bold mb-2">Ready for Next Inputs</h3>
+                <p class="text-teal-100 text-sm mb-4">The core corpus of 19 documents has been indexed. The system is primed to integrate specific policies, environmental data, or community stories for Bribie, Moolgumpin, or the SMBIs.</p>
+                <button class="w-full bg-white text-teal-900 font-bold py-2 rounded-lg hover:bg-stone-100 transition duration-200 flex justify-center items-center space-x-2 shadow-sm">
+                    <span>Upload Next File in Chat</span>
+                    <span class="text-xl">💬</span>
+                </button>
+            </div>
+
+        </aside>
+
+        <!-- Right Column: Document Index & Details (8 cols) -->
+        <section class="lg:col-span-8 flex flex-col space-y-6">
+            
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-stone-200">
+                <h2 class="text-2xl font-bold text-teal-900 mb-2">Indexed Intelligence Base</h2>
+                <p class="text-stone-600 mb-6">
+                    Explore the foundational documents that build the "Braided Economy," "Aura Content Engine," and "Sovereignty Stack." 
+                    Use the filters to drill down into specific systemic pillars.
+                </p>
+
+                <!-- Filters -->
+                <div class="flex flex-wrap gap-2 mb-6" id="category-filters">
+                    <button class="filter-btn active px-4 py-2 rounded-full text-sm font-semibold transition-colors bg-teal-800 text-white" data-filter="All">All Pillars</button>
+                    <button class="filter-btn px-4 py-2 rounded-full text-sm font-semibold transition-colors bg-stone-100 text-stone-600 hover:bg-stone-200" data-filter="Media & Narrative">Media & Narrative</button>
+                    <button class="filter-btn px-4 py-2 rounded-full text-sm font-semibold transition-colors bg-stone-100 text-stone-600 hover:bg-stone-200" data-filter="Economy & Law">Economy & Law</button>
+                    <button class="filter-btn px-4 py-2 rounded-full text-sm font-semibold transition-colors bg-stone-100 text-stone-600 hover:bg-stone-200" data-filter="Tech & AI">Tech & AI</button>
+                    <button class="filter-btn px-4 py-2 rounded-full text-sm font-semibold transition-colors bg-stone-100 text-stone-600 hover:bg-stone-200" data-filter="Community & Wellness">Community & Wellness</button>
+                </div>
+
+                <!-- Document Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 h-[600px] overflow-y-auto pr-2 pb-4" id="document-grid">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Radar Chart: Regional Deployment Readiness -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-stone-200 hidden md:block">
+                 <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-stone-800">Archipelago Capability Mapping</h3>
+                        <p class="text-sm text-stone-500">Estimated capability deployment based on current documentation matrix.</p>
+                    </div>
+                </div>
+                <div class="chart-container h-80 max-h-80">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // --- DATA ARCHITECTURE ---
+
+        // The geographies of the expanded vision
+        const geographies = [
+            { id: 'minjerribah', name: 'Minjerribah', narrative: 'The incubator and foundational node. The home of the SETCo pilot, Sandy Sports Convergence, and the core 10 Entities ecosystem.' },
+            { id: 'bribie', name: 'Bribie Island', narrative: 'The northern anchor. High potential for bridging mainland logistics with island resilience protocols and veteran/elder care networks.' },
+            { id: 'moolgumpin', name: 'Moolgumpin', narrative: 'The wild heart. Prime territory for "Sandworm" subterranean prototypes, deep ecological monitoring (Abyss Protocol), and off-grid tourism narratives.' },
+            { id: 'smbi', name: 'The SMBIs', narrative: 'The decentralized archipelago. Perfect testing ground for Disaster Kiosks, mesh networking (LoRa), and fractal governance models resolving geographic isolation.' },
+            { id: 'all', name: 'Full Archipelago', narrative: 'The combined "Braided Economy." A massive, unified storytelling and economic zone leveraging AI, C-Hours, and sovereign data to build a Protopian regional network.' }
+        ];
+
+        // The 19 Ingested Documents
+        const documentsData = [
+            { title: "Autonomous Mirror Universe Storytelling System", cat: "Media & Narrative", icon: "🎭", desc: "The 'Aura Content Engine'. A blueprint for AI narrative generation, transmedia expansion, and audience persona modules to weave inclusive regional stories." },
+            { title: "Straddie Media Program Development", cat: "Media & Narrative", icon: "🗞️", desc: "Blueprint for a hyperlocal news, arts, and economic transition platform to combat the 'News Desert' and unify the island communities." },
+            { title: "Minjerribah Media Ecosystem", cat: "Media & Narrative", icon: "🎙️", desc: "Strategic architecture for centralized news hubs, aligning QYAC, Elders, and local councils to tell the post-mining transition story." },
+            { title: "Sandy Sports Convergence", cat: "Media & Narrative", icon: "🏐", desc: "Master plan integrating sand sports, screen culture, and regional resilience across key island nodes (Amity, Dunwich, Point Lookout)." },
+            { title: "Art Prompting for Rapid Storyboarding", cat: "Media & Narrative", icon: "🎨", desc: "Quandamooka Film Festival guide for using AI tools to visualize narratives, emotions, and cultural stories efficiently." },
+            { title: "Local Government Funding Inquiry Submission", cat: "Economy & Law", icon: "🏛️", desc: "Proposes the 'Braided Economy', C-Hours (Regenerative Assets), and a Community Sovereign Wealth Fund to solve structural deficits." },
+            { title: "Political Ethics, Technology & Australian Law", cat: "Economy & Law", icon: "⚖️", desc: "Blueprint for political candidacy, utilizing the 'Truth Engine', biometric transparency, and 'Overcompliant' AI campaigns." },
+            { title: "SETCo Business Setup and Compliance", cat: "Economy & Law", icon: "🏢", desc: "Foundational blueprint for the Straddie Employment and Training Company, the human capital engine for the 10-Entity ecosystem." },
+            { title: "Redland Council Review & AI Integration", cat: "Economy & Law", icon: "📝", desc: "The 'Minjerribah Protocol': A systems architecture for bureaucratic reform using fractal governance and local-first P2P data." },
+            { title: "10 Companies All At Once", cat: "Economy & Law", icon: "🕸️", desc: "The sovereign-cosmic framework linking entities like Alpha Infinity, SETCo, and Sandworm Subterranean Systems." },
+            { title: "Native Sovereignty Tech Partnership Strategy", cat: "Tech & AI", icon: "🤝", desc: "A sovereign-aligned framework for co-creative tech partnerships, focusing on Data Sovereignty (IDS) and Web3 tools." },
+            { title: "Queenslands Heart-First Ai Surge Plan", cat: "Tech & AI", icon: "❤️", desc: "A strategic roadmap (2026-2032) for sovereign transition, utilizing the 'Great Scan' and Sovereign Surplus economic models." },
+            { title: "Legal RAG LLM Plan AUS-QLD-Redlands", cat: "Tech & AI", icon: "🧠", desc: "Actionable plan for a Tri-Jurisdictional Legal Retrieval-Augmented Generation AI system to navigate council and sovereign law." },
+            { title: "Version 7 Aura of Intelligence", cat: "Tech & AI", icon: "✨", desc: "Graphical User Interface utilizing AI, Big Data, and IoT to gamify democracy and build the 'Protopian' future." },
+            { title: "Virtual Minjerribah: Time Simulations & Data", cat: "Tech & AI", icon: "🕰️", desc: "The 'Virtual Minjerribah Protocol' utilizing digital twins, ancestor simulations, and generative AI for cultural preservation." },
+            { title: "Democratizing Superintelligence Integration", cat: "Tech & AI", icon: "🌐", desc: "The Regenerative Civilization Protocol. Preparing humanity for decentralized AI through Sovereign Stacks and BioSignal Consent." },
+            { title: "Straddie Disaster Kiosk Pitch", cat: "Community & Wellness", icon: "🆘", desc: "Cyber-Physical architecture for island resilience. Offline mesh networks, emergency broadcasting, and digital twins." },
+            { title: "Life Game Quest Log Design", cat: "Community & Wellness", icon: "🗺️", desc: "A gamified architecture for civilizational transition, integrating the 'Silica Stack' and the 'Abyss Protocol' sensor matrix." },
+            { title: "Digital Inclusion for Community Governance", cat: "Community & Wellness", icon: "🫂", desc: "The 'Digital Yarning Protocol'. Overcoming technophobia and building 'Digital Custodians' for inclusive community governance." }
+        ];
+
+        let currentFilter = 'All';
+        let currentIsland = 'all';
+
+        // --- DOM ELEMENTS ---
+        const gridEl = document.getElementById('document-grid');
+        const catFiltersEl = document.getElementById('category-filters');
+        const geoFiltersEl = document.getElementById('geo-filters');
+        const narrativeBoxEl = document.getElementById('dynamic-narrative-box');
+
+        // --- INITIALIZATION ---
+        function init() {
+            renderGeoFilters();
+            renderGrid();
+            initCharts();
+            setupEventListeners();
+        }
+
+        // --- RENDER FUNCTIONS ---
+        function renderGeoFilters() {
+            geoFiltersEl.innerHTML = geographies.map(geo => `
+                <button class="geo-btn text-left px-3 py-2 rounded-lg border transition-all ${geo.id === currentIsland ? 'bg-teal-50 border-teal-200 text-teal-800 ring-1 ring-teal-500' : 'bg-white border-stone-200 text-stone-600 hover:bg-stone-50'}" data-id="${geo.id}">
+                    <span class="block font-semibold text-sm">${geo.name}</span>
+                </button>
+            `).join('');
+
+            // Add events to new buttons
+            document.querySelectorAll('.geo-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const btnEl = e.currentTarget;
+                    currentIsland = btnEl.dataset.id;
+                    
+                    // Update narrative text
+                    const selectedGeo = geographies.find(g => g.id === currentIsland);
+                    narrativeBoxEl.innerHTML = `<strong>${selectedGeo.name}:</strong> ${selectedGeo.narrative}`;
+                    
+                    // Trigger reflow for animation
+                    narrativeBoxEl.classList.remove('fade-in');
+                    void narrativeBoxEl.offsetWidth; 
+                    narrativeBoxEl.classList.add('fade-in');
+
+                    // Re-render UI
+                    renderGeoFilters();
+                    updateRadarChart();
+                });
+            });
+        }
+
+        function renderGrid() {
+            gridEl.innerHTML = '';
+            
+            const filteredDocs = currentFilter === 'All' 
+                ? documentsData 
+                : documentsData.filter(d => d.cat === currentFilter);
+
+            if(filteredDocs.length === 0) {
+                gridEl.innerHTML = `<div class="col-span-full text-center py-10 text-stone-500">No documents found for this category.</div>`;
+                return;
+            }
+
+            filteredDocs.forEach((doc, index) => {
+                // Determine a subtle background color based on category
+                let bgBadge = 'bg-stone-100 text-stone-600';
+                if(doc.cat === 'Media & Narrative') bgBadge = 'bg-purple-100 text-purple-700';
+                if(doc.cat === 'Economy & Law') bgBadge = 'bg-amber-100 text-amber-700';
+                if(doc.cat === 'Tech & AI') bgBadge = 'bg-blue-100 text-blue-700';
+                if(doc.cat === 'Community & Wellness') bgBadge = 'bg-emerald-100 text-emerald-700';
+
+                const card = document.createElement('div');
+                card.className = 'bg-white border border-stone-100 rounded-xl p-5 shadow-sm card-hover flex flex-col cursor-pointer fade-in';
+                card.style.animationDelay = `${index * 0.05}s`;
+                card.innerHTML = `
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="text-3xl">${doc.icon}</div>
+                        <span class="text-xs font-bold px-2 py-1 rounded uppercase tracking-wide ${bgBadge}">${doc.cat}</span>
+                    </div>
+                    <h3 class="font-bold text-stone-800 leading-snug mb-2 font-serif">${doc.title}</h3>
+                    <p class="text-sm text-stone-600 flex-grow">${doc.desc}</p>
+                    <div class="mt-4 pt-3 border-t border-stone-100 flex justify-between items-center text-xs text-stone-400 font-semibold uppercase">
+                        <span>Indexed</span>
+                        <span class="text-teal-600 hover:text-teal-800 transition-colors">Read Summary &rarr;</span>
+                    </div>
+                `;
+                
+                // Interactive element: Show alert (as requested by interaction paradigm, simulated here)
+                card.addEventListener('click', () => {
+                    const detailBox = document.createElement('div');
+                    detailBox.className = 'fixed inset-0 bg-stone-900/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4 fade-in';
+                    detailBox.innerHTML = `
+                        <div class="bg-white rounded-2xl p-6 md:p-8 max-w-lg w-full shadow-2xl relative">
+                            <button class="absolute top-4 right-4 text-stone-400 hover:text-stone-800 text-xl" onclick="this.closest('.fixed').remove()">&times;</button>
+                            <span class="text-4xl mb-4 block">${doc.icon}</span>
+                            <span class="text-xs font-bold px-2 py-1 rounded uppercase tracking-wide ${bgBadge} mb-3 inline-block">${doc.cat}</span>
+                            <h2 class="text-2xl font-bold text-stone-900 font-serif mb-4">${doc.title}</h2>
+                            <p class="text-stone-600 mb-6 leading-relaxed">${doc.desc}</p>
+                            <div class="bg-stone-50 p-4 rounded-lg border border-stone-200">
+                                <h4 class="text-sm font-bold text-stone-800 mb-2">Narrative Integration Note:</h4>
+                                <p class="text-sm text-stone-600">This document forms a crucial node in the ${currentIsland === 'all' ? 'Archipelago\'s' : geographies.find(g=>g.id===currentIsland).name + '\'s'} transition strategy. Awaiting further granular data to map specific regional deployment.</p>
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(detailBox);
+                });
+
+                gridEl.appendChild(card);
+            });
+        }
+
+        function setupEventListeners() {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    // Reset all
+                    document.querySelectorAll('.filter-btn').forEach(b => {
+                        b.classList.remove('bg-teal-800', 'text-white');
+                        b.classList.add('bg-stone-100', 'text-stone-600');
+                    });
+                    
+                    // Set active
+                    const target = e.currentTarget;
+                    target.classList.remove('bg-stone-100', 'text-stone-600');
+                    target.classList.add('bg-teal-800', 'text-white');
+                    
+                    currentFilter = target.dataset.filter;
+                    renderGrid();
+                });
+            });
+        }
+
+        // --- CHART.JS VISUALIZATIONS ---
+        let radarChartInstance = null;
+
+        function initCharts() {
+            // 1. Balance Doughnut Chart
+            const counts = {
+                'Media & Narrative': documentsData.filter(d=>d.cat==='Media & Narrative').length,
+                'Economy & Law': documentsData.filter(d=>d.cat==='Economy & Law').length,
+                'Tech & AI': documentsData.filter(d=>d.cat==='Tech & AI').length,
+                'Community & Wellness': documentsData.filter(d=>d.cat==='Community & Wellness').length,
+            };
+
+            const ctxDoughnut = document.getElementById('balanceChart').getContext('2d');
+            new Chart(ctxDoughnut, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(counts),
+                    datasets: [{
+                        data: Object.values(counts),
+                        backgroundColor: [
+                            '#8B5CF6', // Purple - Media
+                            '#F59E0B', // Amber - Economy
+                            '#3B82F6', // Blue - Tech
+                            '#10B981'  // Emerald - Wellness
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { font: { family: "'Plus Jakarta Sans', sans-serif" } } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ${context.label}: ${context.raw} Documents`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+
+            // 2. Initial Radar Chart (Simulated Data based on regional strengths mapped in docs)
+            const ctxRadar = document.getElementById('radarChart').getContext('2d');
+            radarChartInstance = new Chart(ctxRadar, {
+                type: 'radar',
+                data: getRadarData('all'),
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(0,0,0,0.05)' },
+                            grid: { color: 'rgba(0,0,0,0.05)' },
+                            pointLabels: {
+                                font: { family: "'Plus Jakarta Sans', sans-serif", size: 11 },
+                                color: '#57534E'
+                            },
+                            ticks: { display: false, min: 0, max: 100 }
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function getRadarData(islandId) {
+            // Simulated scores representing how heavily the current 19 documents apply to each region's specific immediate needs/capabilities
+            const dataMap = {
+                'all': [85, 80, 90, 75, 85],
+                'minjerribah': [95, 90, 85, 80, 100], // Core focus of many docs
+                'bribie': [60, 50, 40, 90, 65], // Needs more integration
+                'moolgumpin': [40, 70, 30, 80, 50], // Ecological/Resilience focus
+                'smbi': [50, 40, 95, 60, 40] // High need for digital inclusion/mesh
+            };
+
+            return {
+                labels: [
+                    'Sovereign Legal/Econ', 
+                    'Media & Narrative Production', 
+                    'Mesh & Digital Inclusion', 
+                    'Ecological Resilience', 
+                    'Corporate Structure (SETCo)'
+                ],
+                datasets: [{
+                    label: 'Capability Score',
+                    data: dataMap[islandId],
+                    backgroundColor: 'rgba(13, 148, 136, 0.2)', // teal-600 with opacity
+                    borderColor: 'rgba(13, 148, 136, 1)',
+                    pointBackgroundColor: 'rgba(13, 148, 136, 1)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgba(13, 148, 136, 1)',
+                    borderWidth: 2
+                }]
+            };
+        }
+
+        function updateRadarChart() {
+            if(radarChartInstance) {
+                radarChartInstance.data = getRadarData(currentIsland);
+                radarChartInstance.update();
+            }
+        }
+
+        // Run
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
