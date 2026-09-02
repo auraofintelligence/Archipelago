@@ -6,9 +6,9 @@
     <title>Archipelago Intelligence & Narrative Index</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
+
     <!-- Chosen Palette: Warm Sand & Mangrove Estuary. A calming, neutral background (stone/sand) with deep teal and terracotta accents to represent the land and water interface of the islands. -->
-    
+
     <!-- Application Structure Plan: 
          The SPA acts as a "Living Index" and "Wait Station". 
          1. Header: Status indicator showing readiness for new documents.
@@ -18,13 +18,13 @@
          5. Thematic Document Index: A filterable, interactive grid of all 19 ingested documents, categorized by function (Governance, Economy, Tech, Narrative).
          This structure provides immediate synthesis of the complex source material while explicitly maintaining an open stance for future inputs.
     -->
-    
+
     <!-- Visualization & Content Choices: 
          - Goal: Inform on system balance -> Viz: Doughnut Chart -> Interaction: Hover for document counts -> Library: Chart.js (NO SVG). Justification: Quickly shows if the system is leaning too heavily into tech vs. narrative.
          - Goal: Compare geographical readiness -> Viz: Radar Chart -> Interaction: Updates based on selected island -> Library: Chart.js. Justification: Shows how the protocols (like C-Hour or Kiosks) adapt to different island scales.
          - Goal: Organize documents -> Viz: Interactive Grid -> Interaction: Click to expand summary -> Library: HTML/CSS/JS. Justification: Replaces a dense list with an explorable knowledge graph.
     -->
-    
+
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. All visual elements are CSS, Unicode, or Canvas-based. -->
 
     <style>
@@ -85,18 +85,19 @@
             transform: translateY(-2px);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
-        
+
         .fade-in {
             animation: fadeIn 0.5s ease-in-out;
         }
-        
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
     </style>
-  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-raster-32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-raster-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon-raster-180.png">
 </head>
 <body class="antialiased min-h-screen flex flex-col">
 
